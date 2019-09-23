@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# Editor backups
+**~
+**.swp
+
+## Explicit files
+blinky-bare.bin
+blinky-bare.elf
+blinky-bare.map
