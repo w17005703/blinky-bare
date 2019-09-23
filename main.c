@@ -1,27 +1,7 @@
 #include <stdint.h>
 #include <stdbool.h>
+#include "MK64F12.h"
 
-/* Register address and mask definitions for the 
- * System Clock Gating Control Register 5 
- * See reference manual, chapter 12, pp 273ff
- */
-#define SIM_SCGC5            (*((volatile uint32_t *)(0x40048038u)))
-#define SIM_SCGC5_PORTB_MASK (1u << 10)
-
-/* Register address and mask definitions for the Pin Control Register for
- * pin 21 in PORT B
- * See the reference manual, chapter 10, pp 243ff, and chapter 11, pp 273ff
- */ 
-#define PORTB_PCR21          (*((volatile uint32_t *)(0x4004A054u)))
-#define PORT_PCR_MUX_MASK    (0x0700u)
-#define PORT_PCR_MUX_SHIFT   (8u)
-
-/* Register address and mask definitions for GPIO PORT B 
- * Port Data Direction Register and Port Data Output Register
- * See the reference manual, chapter 55, pp 1757ff
- */ 
-#define GPIOB_PDDR           (*((volatile uint32_t *)(0x400FF054u)))
-#define GPIOB_PDOR           (*((volatile uint32_t *)(0x400FF040u)))
 #define PIN21_MASK           (1u << 21)
 
 void delay(int count);
@@ -52,7 +32,7 @@ int main(void)
 }
 
 void delay(int count) {
-    int i = 0;
+    volatile int i = 0;
     for (i = count*1000 ; i !=0; i--) {
 	/* skip */
     }
