@@ -9,10 +9,11 @@
 #define SIM_SCGC5_PORTB_MASK (1u << 10)
 
 /* Register address and mask definitions for the Pin Control Register for
- * pin 21 in PORT B
+ * pins 21 and 22 in PORT B
  * See the reference manual, chapter 10, pp 243ff, and chapter 11, pp 273ff
  */ 
 #define PORTB_PCR21          (*((volatile uint32_t *)(0x4004A054u)))
+#define PORTB_PCR22          (*((volatile uint32_t *)(0x4004A058u)))
 #define PORT_PCR_MUX_MASK    (0x0700u)
 #define PORT_PCR_MUX_SHIFT   (8u)
 
@@ -23,6 +24,7 @@
 #define GPIOB_PDDR           (*((volatile uint32_t *)(0x400FF054u)))
 #define GPIOB_PDOR           (*((volatile uint32_t *)(0x400FF040u)))
 #define PIN21_MASK           (1u << 21)
+#define PIN22_MASK           (1u << 22)
 
 void delay(int count);
 
@@ -31,18 +33,24 @@ int main(void)
     /* Enable the clock to PORT B */
     SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
 
-    /* Select the GPIO function (Alternative 1) for pin 21 of PORT B */
+    /* Select the GPIO function (Alternative 1) for pins 21 and 22 of PORT B */
     PORTB_PCR21 &= ~PORT_PCR_MUX_MASK;
     PORTB_PCR21 |= (1u << PORT_PCR_MUX_SHIFT);
+    PORTB_PCR22 &= ~PORT_PCR_MUX_MASK;
+    PORTB_PCR22 |= (1u << PORT_PCR_MUX_SHIFT);
 
-    /* Set the data direction for pin 21 of PORT B to output */
-    GPIOB_PDDR |= PIN21_MASK;
+    /* Set the data direction for pins 21 and 22 of PORT B to output */
+    GPIOB_PDDR |= (PIN21_MASK | PIN22_MASK);
 
     while (true) {
         /* Turn on the blue LED */
         GPIOB_PDOR &= ~PIN21_MASK;
+        /* Turn off the red LED */
+        GPIOB_PDOR |= PIN22_MASK; 
         /* Wait for about 1 second */
     	delay(1000);
+        /* Turn on the red LED */
+        GPIOB_PDOR &= ~PIN22_MASK;
         /* Turn off the blue LED */
         GPIOB_PDOR |= PIN21_MASK; 
         /* Wait for about 1 second */
@@ -52,7 +60,7 @@ int main(void)
 }
 
 void delay(int count) {
-    int i = 0;
+    volatile int i = 0;
     for (i = count*1000 ; i !=0; i--) {
 	/* skip */
     }
