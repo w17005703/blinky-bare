@@ -7,6 +7,7 @@
  */
 #define SIM_SCGC5            (*((volatile uint32_t *)(0x40048038u)))
 #define SIM_SCGC5_PORTB_MASK (1u << 10)
+#define SIM_SCGC5_PORTE_MASK (1u << 13)
 
 /* Register address and mask definitions for the Pin Control Register for
  * pins 21 and 22 in PORT B
@@ -14,6 +15,7 @@
  */ 
 #define PORTB_PCR21          (*((volatile uint32_t *)(0x4004A054u)))
 #define PORTB_PCR22          (*((volatile uint32_t *)(0x4004A058u)))
+#define PORTE_PCR26          (*((volatile uint32_t *)(0x4004D068u)))
 #define PORT_PCR_MUX_MASK    (0x0700u)
 #define PORT_PCR_MUX_SHIFT   (8u)
 
@@ -23,37 +25,46 @@
  */ 
 #define GPIOB_PDDR           (*((volatile uint32_t *)(0x400FF054u)))
 #define GPIOB_PDOR           (*((volatile uint32_t *)(0x400FF040u)))
+#define GPIOE_PDDR	     (*((volatile uint32_t *)(0x400FF100u)))
+#define GPIOE_PDOR	     (*((volatile uint32_t *)(0x400FF110u)))
 #define PIN21_MASK           (1u << 21)
 #define PIN22_MASK           (1u << 22)
+#define PIN26_MASK	     (1u << 26)
 
 void delay(int count);
 
 int main(void)
 {
     /* Enable the clock to PORT B */
-    SIM_SCGC5 |= SIM_SCGC5_PORTB_MASK;
+    SIM_SCGC5 |= (SIM_SCGC5_PORTB_MASK | SIM_SCGC5_PORTE_MASK);
 
     /* Select the GPIO function (Alternative 1) for pins 21 and 22 of PORT B */
     PORTB_PCR21 &= ~PORT_PCR_MUX_MASK;
     PORTB_PCR21 |= (1u << PORT_PCR_MUX_SHIFT);
     PORTB_PCR22 &= ~PORT_PCR_MUX_MASK;
     PORTB_PCR22 |= (1u << PORT_PCR_MUX_SHIFT);
+    PORTE_PCR26 &= ~PORT_PCR_MUX_MASK;
+    PORTE_PCR26 |= (1u << PORT_PCR_MUX_SHIFT);
 
     /* Set the data direction for pins 21 and 22 of PORT B to output */
     GPIOB_PDDR |= (PIN21_MASK | PIN22_MASK);
-
-    while (true) {
-        /* Turn on the blue LED */
+    GPIOE_PDDR |= PIN26_MASK;
+    
+     /* Turn on the blue LED */
         GPIOB_PDOR &= ~PIN21_MASK;
         /* Turn off the red LED */
         GPIOB_PDOR |= PIN22_MASK; 
+	GPIOE_PDOR |= PIN26_MASK;
         /* Wait for about 1 second */
     	delay(1000);
-        /* Turn on the red LED */
-        GPIOB_PDOR &= ~PIN22_MASK;
-        /* Turn off the blue LED */
-        GPIOB_PDOR |= PIN21_MASK; 
+
+    while (true) {
+        /* Toggle red LED */
+        GPIOB_PDOR ^= PIN22_MASK;
+        /* Toggle blue LED */
+        GPIOB_PDOR ^= PIN21_MASK; 
         /* Wait for about 1 second */
+	GPIOE_PDOR ^= PIN26_MASK;
 	delay(1000);
     }
     return 0;
